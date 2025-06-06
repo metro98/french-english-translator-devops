@@ -81,7 +81,7 @@ jobs:
           --dns-name-label translator-app-${{ github.run_number }} \
           --ports 80 \
           --location eastus
-          --os-type Linux \
+          --osType Linux \
           --cpu 1 \
           --memory 1.5
         
