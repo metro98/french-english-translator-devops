@@ -1,0 +1,46 @@
+# Git
+.git
+.gitignore
+README.md
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose*.yml
+
+# Documentation
+*.md
+docs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Cache
+node_modules/
+npm-debug.log*
+.npm
+.cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+dist/
+build/
+
+# Monitoring configs (they're mounted as volumes)
+monitoring/
