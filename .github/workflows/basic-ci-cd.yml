@@ -1,0 +1,88 @@
+name: Basic CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
+  IMAGE_NAME: french-english-translator
+  RESOURCE_GROUP: rg-translator-basic
+
+jobs:
+  # Job 1: Build and Test
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: Build Docker Image
+      run: |
+        docker build -t ${{ env.IMAGE_NAME }}:test .
+        
+    - name: Test Container
+      run: |
+        # Start container
+        docker run -d -p 8080:80 --name test-container ${{ env.IMAGE_NAME }}:test
+        
+        # Wait for startup
+        sleep 10
+        
+        # Health check
+        curl -f http://localhost:8080/ || exit 1
+        echo "✅ Container health check passed!"
+        
+        # Cleanup
+        docker stop test-container
+        docker rm test-container
+
+  # Job 2: Deploy to Azure
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+    - name: Login to Azure Container Registry
+      run: |
+        echo ${{ secrets.ACR_PASSWORD }} | docker login ${{ secrets.ACR_LOGIN_SERVER }} --username ${{ secrets.ACR_USERNAME }} --password-stdin
+        
+    - name: Build and Push to ACR
+      run: |
+        # Build with build number tag
+        docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.run_number }} .
+        docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest .
+        
+        # Push to registry
+        docker push ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
+        docker push ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
+        
+    - name: Deploy to Azure Container Instances
+      run: |
+        az container create \
+          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --name translator-app-${{ github.run_number }} \
+          --image ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.run_number }} \
+          --registry-login-server ${{ secrets.ACR_LOGIN_SERVER }} \
+          --registry-username ${{ secrets.ACR_USERNAME }} \
+          --registry-password ${{ secrets.ACR_PASSWORD }} \
+          --dns-name-label translator-app-${{ github.run_number }} \
+          --ports 80 \
+          --location eastus
+        
+    - name: Get Application URL
+      run: |
+        echo "🚀 Application deployed!"
+        echo "URL: http://translator-app-${{ github.run_number }}.eastus.azurecontainer.io"
