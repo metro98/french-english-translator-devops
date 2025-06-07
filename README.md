@@ -1,20 +1,22 @@
 # french-english-translator-devops
 
-📋 Project Overview
+# Project Overview
+
 A modern French-English translation web application showcasing enterprise DevOps practices including containerization, automated CI/CD pipelines, and cloud deployment on Microsoft Azure.
 While the application itself is simple, the focus is on demonstrating production-ready DevOps workflows that can scale to any enterprise application.
-🏗️ Architecture
+
+# Architecture
 GitHub Repository → GitHub Actions → Azure Container Registry → Azure Container Instances
 Tech Stack
 
-Frontend: Vanilla JavaScript with modern CSS (Glassmorphism design)
+#Frontend: Vanilla JavaScript with modern CSS (Glassmorphism design)
 API: MyMemory Translation API (free tier)
 Containerization: Docker with Nginx Alpine
 CI/CD: GitHub Actions
 Cloud Platform: Microsoft Azure
 Infrastructure: Azure Container Registry + Azure Container Instances
 
-🚀 Features
+# Features
 Application Features
 
 ✅ Bidirectional French ↔ English translation
@@ -23,7 +25,7 @@ Application Features
 ✅ Modern responsive design
 ✅ Mobile-optimized interface
 
-DevOps Features
+# DevOps Features
 
 ✅ Automated CI/CD pipeline
 ✅ Containerized deployment
@@ -32,7 +34,7 @@ DevOps Features
 ✅ Cloud-native architecture
 ✅ Proper secrets management
 
-🔄 CI/CD Pipeline
+# CI/CD Pipeline
 Pipeline Triggers
 
 Push to main branch: Triggers full build and deployment
